@@ -8,7 +8,7 @@ services:
   hub-db:
     image: postgres:9.5
     container_name: jupyterhub-db
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       PGDATA: ${DB_VOLUME_CONTAINER}
@@ -21,16 +21,12 @@ services:
     depends_on:
       - hub-db
     build:
-      context: .
-      dockerfile: Dockerfile.jupyterhub
       args:
         JUPYTERHUB_VERSION: ${JUPYTERHUB_VERSION}
-    restart: always
+    restart: unless-stopped
     image: jupyterhub
     container_name: jupyterhub
     volumes:
-      # Bind Docker socket on the host so we can connect to the daemon from
-      # within the container
       - "/var/run/docker.sock:/var/run/docker.sock:rw"
       # Bind Docker volume on host for JupyterHub database and cookie secrets
       - "data:${DATA_VOLUME_CONTAINER}"
